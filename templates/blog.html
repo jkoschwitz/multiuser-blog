@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
   {% for post in posts %}
-    <h2>{{ post.subject }} by {{ post.author.username }}</h2>
-    <h3>Posted on: {{ post.created.strftime("%b %d, %Y") }}</h3>
+    <h2><a href="/blog/{{ post.key.id() }}">{{ post.subject }}</a></h2>
+    <h3>Posted on: {{ post.created.strftime("%b %d, %Y") }} by {{ post.author.username }}</h3>
     <article>{{ post.content }}</article>
     {% if post.author.username == user.username %}
       <div class="author-options">
@@ -11,10 +11,6 @@
       </div>
     {% endif %}
     <a href="/blog/{{ post.key.id() }}">Read more</a>
-    <br>
+    <br><br>
   {% endfor %}
-  <br>
-  {% if user.email == "anthony.fumagalli@gmail.com" %}
-    <a href="/blog/newpost">Create new post</a>
-  {% endif %}
 {% endblock %}

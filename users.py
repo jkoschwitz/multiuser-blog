@@ -15,6 +15,8 @@ USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$") # valid user
 PWD_RE = re.compile(r"^.{3,20}$") # valid password
 EMAIL_RE = re.compile(r"^[\S]+@[\S]+.[\S]+$") # valid email
 
+#this handles all the user and authentication related aspects
+
 def valid_username(username):
     """Checks if username is valid"""
     return USER_RE.match(username)

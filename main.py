@@ -9,10 +9,8 @@ import string
 import webapp2
 import jinja2
 
-from users import *
-from blog import *
-
 from google.appengine.ext import ndb
+from users import *
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
@@ -36,23 +34,45 @@ class Handler(webapp2.RequestHandler):
         self.response.headers.add_header('Set-Cookie','%s=%s; Path=/' % (name, cookie_val))
 
     def read_cookie(self, name):
-        """Reads a cookie and returns its value"""
         cookie_val = self.request.cookies.get(name)
         return cookie_val and check_secure_val(cookie_val)
 
     def initialize(self, *a, **kw):
-        """Initializes the page with the signed-in user"""
         webapp2.RequestHandler.initialize(self, *a, **kw)
         username = self.read_cookie('user')
         self.user = User.gql("WHERE username = '%s'" % username).get()
 
-class MainHandler(Handler):
-    """Renders the front page"""
-    def get(self):
-        self.render("index.html")
 
+#Blog related stuff
+
+def blog_key(name = 'default'):
+    return ndb.Key('blogs', name)
+
+class BlogPost(ndb.Model):
+    subject = ndb.StringProperty(required = True)
+    content = ndb.TextProperty(required = True)
+    created = ndb.DateTimeProperty(auto_now_add = True)
+    author = ndb.StructuredProperty(User)
+    likes = ndb.IntegerProperty(default = 0)
+
+class Comment(ndb.Model):
+    post_id = ndb.IntegerProperty(required = True)
+    author = ndb.StructuredProperty(User)
+    content = ndb.StringProperty(required = True)
+    created = ndb.DateTimeProperty(auto_now_add = True)
+
+class Like(ndb.Model):
+    post_id = ndb.IntegerProperty(required = True)
+    author = ndb.StructuredProperty(User)
+
+
+class MainHandler(Handler):
+    def get(self):
+        """This renders the landing page"""
+        self.render("blog.html")
+
+"""Handles the signup page"""
 class SignupHandler(Handler):
-    """Handles the signup page"""
     def get(self):
         self.render("signup.html")
 
@@ -99,8 +119,9 @@ class SignupHandler(Handler):
                 time.sleep(0.1)
                 self.redirect("/welcome")
 
+
+"""Renders the welcome page"""
 class WelcomeHandler(Handler):
-    """Renders the welcome page"""
     def get(self):
         user = self.request.cookies.get('user')
         if user:
@@ -112,8 +133,9 @@ class WelcomeHandler(Handler):
         else:
             self.redirect('/signup')
 
+
+"""Handles user login"""
 class LoginHandler(Handler):
-    """Handles user login"""
     def get(self):
         self.render("login.html")
 
@@ -129,20 +151,23 @@ class LoginHandler(Handler):
             error = "Not a valid username or password"
             self.render("login.html", username = username, error = error)
 
+
+"""Handles user logout, redirects to signup on completion"""
 class LogoutHandler(Handler):
-    """Handles user logout, redirects to signup on completion"""
     def get(self):
         self.response.headers.add_header("Set-Cookie", "user=; Path=/")
         self.redirect("/login")
 
+
+"""This renders the main blog page"""
 class BlogHandler(Handler):
-    """Renders the main blog page"""
     def get(self):
         posts = BlogPost.gql("ORDER BY created DESC")
         self.render("blog.html", posts = posts)
 
+
+"""To create new posts"""
 class NewPostHandler(Handler):
-    """Handles creation of new posts"""
     def get(self):
         self.render("newpost.html")
 
@@ -160,8 +185,9 @@ class NewPostHandler(Handler):
             error = "you need both a subject and content"
             self.render("newpost.html", subject = subject, content = content, error = error)
 
+
+"""This handles everything that goes into one post"""
 class PostHandler(Handler):
-    """Renders the page for a single post, handles comments and likes on post"""
     def get(self, post_id):
         key = ndb.Key('BlogPost', int(post_id), parent=blog_key())
         post = key.get()
@@ -206,8 +232,9 @@ class PostHandler(Handler):
             else:
                 self.render("blogpost.html", post = post)
 
+
+"""This is for editing posts"""
 class EditPostHandler(Handler):
-    """Handles editing of blog posts"""
     def get(self):
         if self.user:
             post_id = self.request.get("post")
@@ -239,8 +266,9 @@ class EditPostHandler(Handler):
         else:
             self.redirect("/blog")
 
+
+"""This lets users delete posts"""
 class DeletePostHandler(Handler):
-    """Handles deletion of blog posts"""
     def get(self):
         if self.user:
             post_id = self.request.get("post")
@@ -262,8 +290,8 @@ class DeletePostHandler(Handler):
             time.sleep(0.1)
         self.redirect("/blog")
 
+"""This aims to let users edit comments"""
 class EditCommentHandler(Handler):
-    """Handles editing of comments"""
     def get(self):
         if self.user:
             comment_id = self.request.get("comment")
@@ -293,8 +321,8 @@ class EditCommentHandler(Handler):
         else:
             self.redirect("/blog/%s" % comment.post_id)
 
+
 class DeleteCommentHandler(Handler):
-    """Handles deletion of comments"""
     def get(self):
         if self.user:
             comment_id = self.request.get("comment")
@@ -311,10 +339,12 @@ class DeleteCommentHandler(Handler):
         comment_id = self.request.get("comment")
         key = ndb.Key('Comment', int(comment_id))
         comment = key.get()
+
         if comment and comment.author.username == self.user.username:
             post_id = comment.post_id
             key.delete()
             time.sleep(0.1)
+
         self.redirect("/blog/%s" % post_id)
 
 app = webapp2.WSGIApplication([

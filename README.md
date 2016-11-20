@@ -2,24 +2,22 @@
 
 To install this blog, please follow these steps:
 
-1. Install Python if necessary.
-2. Install Google App Engine SDK.
+1. Install Python
+2. Install Google App Engine SDK
 3. Navigate to the your local repository and
-3.1 start app engine with: dev_appserver.py .
+3.1 start app engine with: <code>dev_appserver.py .</code>
 4. deploy to using: gcloud deploy
 
+
+Some of the code is based on previous work from the course as well as different other sources like:
+https://github.com/jwelker110/multi-user-blog
+https://github.com/afumagalli/the-smoking-rooster
+
 --------------------------
 --------------------------
 
-The below are notes used to follow the course requiremenet from udacity's Full Stack Dev course:
+The below are notes used to follow the course requirement from Udacity's Full Stack Dev course:
 
-Getting Started
-
-In the course “Intro to Backend,” we walk you through the development of a blog application using Google App Engine. But the course excludes certain features that you’ll need to implement for this project.
-
-This document is intended to guide you through implementing the entire project, including what has been taught in the course. Note that some details are omitted from this document, so refer to the rubric for details. If you’ve already completed the project from the course, go to step 5.
-
-Note: Google App Engine has changed a lot recently! Fortunately their documentation is very good. If you encounter error messages while deploying your project, check out the documentation or ask on the Udacity discussion forums!
 
 Let’s Get Started
 
