@@ -1,4 +1,17 @@
+<b>This is a multi user blog in its barest form.</b>
+
+To install this blog, please follow these steps:
+
+1. Install Python if necessary.
+2. Install Google App Engine SDK.
+3. Navigate to the your local repository and
+3.1 start app engine with: dev_appserver.py .
+4. deploy to using: gcloud deploy
+
+
+
 Getting Started
+
 In the course “Intro to Backend,” we walk you through the development of a blog application using Google App Engine. But the course excludes certain features that you’ll need to implement for this project.
 
 This document is intended to guide you through implementing the entire project, including what has been taught in the course. Note that some details are omitted from this document, so refer to the rubric for details. If you’ve already completed the project from the course, go to step 5.
