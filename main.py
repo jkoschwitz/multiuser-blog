@@ -11,7 +11,6 @@ import jinja2
 
 from users import *
 from blog import *
-from portfolio import Project, portfolio_key
 
 from google.appengine.ext import ndb
 
@@ -20,29 +19,23 @@ jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
                                autoescape = True)
 
 class Handler(webapp2.RequestHandler):
-    """Defines functions for rendering pages and setting cookies"""
+
     def write(self, *a, **kw):
-        """Writes to the web page"""
         self.response.write(*a, **kw)
 
     def render_str(self, template, **kw):
-        """Renders a Jinja template"""
         kw['user'] = self.user
         t = jinja_env.get_template(template)
         return t.render(kw)
 
     def render(self, template, **kw):
-        """Writes rendered template to page"""
         self.write(self.render_str(template, **kw))
 
-    def set_secure_cookie(self, name, val):
-        """Sets a cookie"""
+    def set_cookie(self, name, val):
         cookie_val = make_secure_val(val)
-        self.response.headers.add_header(
-            'Set-Cookie',
-            '%s=%s; Path=/' % (name, cookie_val))
+        self.response.headers.add_header('Set-Cookie','%s=%s; Path=/' % (name, cookie_val))
 
-    def read_secure_cookie(self, name):
+    def read_cookie(self, name):
         """Reads a cookie and returns its value"""
         cookie_val = self.request.cookies.get(name)
         return cookie_val and check_secure_val(cookie_val)
@@ -50,7 +43,7 @@ class Handler(webapp2.RequestHandler):
     def initialize(self, *a, **kw):
         """Initializes the page with the signed-in user"""
         webapp2.RequestHandler.initialize(self, *a, **kw)
-        username = self.read_secure_cookie('user')
+        username = self.read_cookie('user')
         self.user = User.gql("WHERE username = '%s'" % username).get()
 
 class MainHandler(Handler):
@@ -151,13 +144,7 @@ class BlogHandler(Handler):
 class NewPostHandler(Handler):
     """Handles creation of new posts"""
     def get(self):
-        if self.user.email == "jk@example.com":
-            self.render("newpost.html")
-        elif self.user:
-            error = "you do not have permission to create a post, but you may comment on existing posts"
-            self.redirect("/blog")
-        else:
-            self.redirect("/login")
+        self.render("newpost.html")
 
     def post(self):
         if not self.user:
@@ -301,7 +288,7 @@ class EditCommentHandler(Handler):
                 time.sleep(0.1)
                 self.redirect("/blog/%s" % comment.post_id)
             else:
-                error = "you need both a subject and content"
+                error = "please fill both fields."
                 self.render("editcomment.html", content = content, post_id = comment.post_id, error = error)
         else:
             self.redirect("/blog/%s" % comment.post_id)
@@ -330,44 +317,6 @@ class DeleteCommentHandler(Handler):
             time.sleep(0.1)
         self.redirect("/blog/%s" % post_id)
 
-class AboutHandler(Handler):
-    """Handles rendering of the about me page"""
-    def get(self):
-        self.render("about.html")
-
-class PortfolioHandler(Handler):
-    """Renders the main portfolio page"""
-    def get(self):
-        projects = Project.gql("ORDER BY created DESC")
-        self.render("portfolio.html", projects = projects)
-
-class NewProjectHandler(Handler):
-    """Handles creation of new portfolio projects"""
-    def get(self):
-        if self.user.email == "jk@example.com":
-            self.render("newproject.html")
-        elif self.user:
-            error = "you do not have permission to create a project, but you may comment on existing projects"
-            self.redirect("/portfolio")
-        else:
-            self.redirect("/login")
-
-    def post(self):
-        if not self.user:
-            # if no user, redirect to blog page
-            self.redirect("/portfolio")
-        title = self.request.get("title")
-        description = self.request.get("description")
-        link = self.request.get("link")
-        if title and description:
-            project = Project(parent = portfolio_key(), title = title, description = description, link = link)
-            project.put()
-            self.redirect("/portfolio")
-            # self.redirect("/portfolio/%s" % str(project.key.id()))
-        else:
-            error = "you need both a title and description"
-            self.render("newproject.html", title = title, description = description, link = link, error = error)
-
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
     ('/signup', SignupHandler),
@@ -381,7 +330,4 @@ app = webapp2.WSGIApplication([
     ('/blog/delete', DeletePostHandler),
     ('/comment/edit', EditCommentHandler),
     ('/comment/delete', DeleteCommentHandler),
-    ('/about', AboutHandler),
-    ('/portfolio', PortfolioHandler),
-    ('/portfolio/newproject', NewProjectHandler)
 ], debug=True)

@@ -1,3 +1,8 @@
+html{
+  text-align: center;
+
+}
+
 body {
     position: relative;
     font-family: Helvetica, Arial, sans-serif;
@@ -11,9 +16,10 @@ body {
 .login-area {
     font-size: 13px;
     color: gray;
-    position: absolute;
+    position: relative;
     top: 10px;
-    right: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid black;
 }
 
 .login-link {
@@ -81,11 +87,12 @@ input[type=submit] {
 .main-title {
     display: block;
     color: #666;
-    font-size: 40px;
+    font-size: 20px;
     font-weight: bold;
-    text-align: left;
     margin-bottom: 5px;
     text-decoration: none;
+    padding-bottom: 10px;
+    border-bottom: 1px solid black;
 }
 
 .sub-title {
@@ -100,6 +107,7 @@ input[type=submit] {
 
 .post + .post {
     margin-top: 15px;
+    padding-bottom: 30px;
 }
 
 .post-heading {
@@ -141,21 +149,24 @@ input[type=submit] {
 
 .navigation {
    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-/*     background-color: #333;*/
+   font-size: 22px;
+   margin:0;
+   padding-left:0;
+   padding-top: 20px;
+   padding-bottom: 10px;
+   border-bottom: 1px solid black;
+   overflow: hidden;
 }
 
 .nav-item {
-    float: left;
+    float: center;
 }
 
 .nav-item a {
     display: block;
     color: black;
     text-align: center;
-    padding: 14px 16px;
+    padding-top: 16px;
     text-decoration: none;
 }
 
