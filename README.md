@@ -8,7 +8,10 @@ To install this blog, please follow these steps:
 3.1 start app engine with: dev_appserver.py .
 4. deploy to using: gcloud deploy
 
+--------------------------
+--------------------------
 
+The below are notes used to follow the course requiremenet from udacity's Full Stack Dev course:
 
 Getting Started
 
